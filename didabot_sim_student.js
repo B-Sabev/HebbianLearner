@@ -569,7 +569,7 @@ function simStep() {
 
 function drawBoard() {
   var context = document.getElementById('arenaDidabot').getContext('2d');
-  context.fillStyle = "#444444";
+  context.fillStyle = "#adb1b8";
   context.fillRect(0, 0, simInfo.width, simInfo.height);
 
   // draw objects within world
