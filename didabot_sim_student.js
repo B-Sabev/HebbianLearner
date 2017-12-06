@@ -219,9 +219,9 @@ function senseDistance() {
                       y: rPos.y + (rSize+1) * Math.sin(robotAngle + attachAngle)};
 
   function getEndpoint(rayLength) {
-    return {x: rPos.x + (rSize + rayLength) * Math.cos(rayAngle),
-            y: rPos.y + (rSize + rayLength) * Math.sin(rayAngle)};
-  };
+	return {x: startPoint.x + rayLength * Math.cos(rayAngle),
+          y: startPoint.y + rayLength * Math.sin(rayAngle)};
+};
 
   function sensorRay(bodies, rayLength) {
     // Cast ray of supplied length and return the bodies that collide with it.
