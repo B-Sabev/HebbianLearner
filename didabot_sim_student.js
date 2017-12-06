@@ -426,9 +426,13 @@ function rotationFromDist(dist, k){
 
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
-	
-	sens = [getSensorValById(robot,'distR'),
+	p_thresh = 3
+	// proximity sensor
+	prox = [getSensorValById(robot,'distR'),
 			getSensorValById(robot,'distL')];
+	// collision sensor
+	c	= [dist[0] > p_thresh ? 0 : 1,
+		   dist[1] > p_thresh ? 0 : 1];
 	
 	maxSensVals = [robot.sensors[0].maxVal, 
 				   robot.sensors[1].maxVal];
