@@ -21,13 +21,11 @@
 
 
 // Global variables for easy change of settings
-var N_ROBOTS = 3; // no more than 5
-var N_BOX = [3,4]; // number of boxes on x,y
-
+var N_ROBOTS = 1; // no more than 5
+var N_BOX = [4,4]; // number of boxes on x,y
 
 var SENSOR_ANGLE = Math.PI / 4; // sensor angle for all robots, symetric 
 var SENSOR_DIST  = 50			// Maximum distance of which the sensor gives valid measure
-var K_ROT = 0.05                // Proporionality constant for the Rotation
 
 
 // Initialize the robot position and sensors
@@ -430,22 +428,10 @@ function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	
 	sens = [getSensorValById(robot,'distR'),
-			getSensorValById(robot,'distL')]
+			getSensorValById(robot,'distL')];
 	
 	maxSensVals = [robot.sensors[0].maxVal, 
-				   robot.sensors[1].maxVal]
-	
-	
-	// rotate independently for each sensor, if the sensor reading is valid
-	if(sens[0] <= maxSensVals[0]){
-		rotate(robot, rotationFromDist(sens[0], K_ROT))
-	} 
-	if (sens[1] <= maxSensVals[1]){
-		rotate(robot, rotationFromDist(sens[1], K_ROT))
-	}	
-	
-	// drive with constant small speed
-	drive(robot, 1e-4)
+				   robot.sensors[1].maxVal];
 	
 };
 
