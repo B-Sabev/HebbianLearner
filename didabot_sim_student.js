@@ -422,7 +422,26 @@ function rotationFromDist(dist, k){
 	// Rotation angle is inversly proportional to the logarithm of the distance
 	dist_ = Math.log(dist + 2)
 	return 1 / dist_ * k
-}	
+}
+
+function initWeights(init_val, i,j){
+	// initialize a 2d array of dimentions i*j with value init_val
+	return new Array(i).fill(init_val).map(()=>new Array(j).fill(init_val));
+}
+
+function matVecMult(m,v){
+	// multiply vector by matrix if dimentions are right
+	product = []
+	for(var i=0; i<m.length; i++){
+		//m[i] and v are 2 vectors - make dot product
+		row = 0
+		for(var j=0; j<m[i].length; j++){
+			row += m[i][j] * v[j]
+		}
+		product.push(row)
+	}
+	return product;
+}
 
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
@@ -431,11 +450,26 @@ function robotMove(robot) {
 	prox = [getSensorValById(robot,'distR'),
 			getSensorValById(robot,'distL')];
 	// collision sensor
-	c	= [dist[0] > p_thresh ? 0 : 1,
-		   dist[1] > p_thresh ? 0 : 1];
+	c	= [prox[0] > p_thresh ? 0 : 1,
+		   prox[1] > p_thresh ? 0 : 1];
 	
 	maxSensVals = [robot.sensors[0].maxVal, 
 				   robot.sensors[1].maxVal];
+	
+	
+	
+	W = initWeights(0.05, 2,2)
+	//h = matVecMult(W,p);
+	
+	//console.log(W[1][1] + " " + W[0][1]);
+	console.log(h[0] + " " + h[1]);
+	// reflex - turn away from walls
+	robot.drive(robot, 0.0001);
+	if(c[0])
+		robot.rotate(robot, -0.01)
+	if(c[1])
+		robot.rotate(robot, 0.01)
+		
 	
 };
 
