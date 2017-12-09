@@ -429,7 +429,7 @@ function initWeights(init_val, i,j){
 	return new Array(i).fill(init_val).map(()=>new Array(j).fill(init_val));
 }
 
-function matVecMult(m,v){
+function multiply(m,v){
 	// multiply vector by matrix if dimentions are right
 	product = []
 	for(var i=0; i<m.length; i++){
@@ -443,9 +443,55 @@ function matVecMult(m,v){
 	return product;
 }
 
+function add(a,b){
+	// Element-wise addition of 2 matrices or 2 vectors
+	if (typeof(a[0]) == 'number'){ // if it is 1D array
+		sum = []
+		for(var i=0; i<a.length;i++){
+			sum.push(a[i] + b[i])
+		}
+	} else {
+		sum = a
+		for(var i=0; i<a.length;i++){
+			for(var j=0; j<a[0].length; j++){
+				sum[i][j] += b[i][j]
+			}
+		}
+	}
+	return sum
+}
+
+function threshold(h, theta=0){
+	// threshold activation function - for every element of h
+	// if h > theta then a=1
+	// if h <= theta then a=0
+	a = []
+	for(var i=0;i<h.length;i++){
+		if(h[i] > theta)
+			a.push(1)
+		else
+			a.push(0)
+	}
+	return a
+}
+
+function propagate(a, learning_rate){
+	// propagate the learning signal accoring to the activation of the nodes and the leanring rate
+	// dW_ij= n * ai * aj
+	W_delta = new Array(a.length).fill(0).map(()=>new Array(a.length).fill(0));
+	for(var i; i < a.length; i++){
+		for(var j; j < a.length; j++){
+			W_delta[i][j] = learning_rate * a[i] * a[j]
+		}
+	}
+	return W_delta
+}
+
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 3
+	learning_rate = 0.001
+	
 	// proximity sensor
 	prox = [getSensorValById(robot,'distR'),
 			getSensorValById(robot,'distL')];
@@ -456,13 +502,31 @@ function robotMove(robot) {
 	maxSensVals = [robot.sensors[0].maxVal, 
 				   robot.sensors[1].maxVal];
 	
+	prox = [prox[0] > maxSensVals[0] ? 70 : prox[0],
+		    prox[1] > maxSensVals[1] ? 70 : prox[1]];
+	
+	if (simInfo.curSteps == 0) {
+		W = initWeights(0.05, 2,2)
+	} else {
+		x= 1+1;
+		//W += W_delta
+	}
+	
+	h = add(multiply(W, prox), c)
+	a = threshold(h, 5)
+	
+	// change of W = learning rate * activation * activations
+	W_delta = propagate(a, learning_rate) // may not work yet
+	
+	network_info = "Hidden layer " + h[0] + " " + h[1] + " " + h.length + "\n" +
+				   "Activation " + a[0] + " " + a[1] + "\n" +
+					"W_delta" + W_delta[0][0] + " " + W_delta[0][1] + " " + W_delta[1][0] + " " + W_delta[1][1]
+	
+	console.log(network_info)
 	
 	
-	W = initWeights(0.05, 2,2)
-	//h = matVecMult(W,p);
 	
-	//console.log(W[1][1] + " " + W[0][1]);
-	console.log(h[0] + " " + h[1]);
+	
 	// reflex - turn away from walls
 	robot.drive(robot, 0.0001);
 	if(c[0])
