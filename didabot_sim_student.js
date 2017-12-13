@@ -479,9 +479,37 @@ function propagate(a, learning_rate){
 	// propagate the learning signal accoring to the activation of the nodes and the leanring rate
 	// dW_ij= n * ai * aj
 	W_delta = new Array(a.length).fill(0).map(()=>new Array(a.length).fill(0));
-	for(var i; i < a.length; i++){
-		for(var j; j < a.length; j++){
+	for(var i=0; i < a.length; i++){
+		for(var j=0; j < a.length; j++){
 			W_delta[i][j] = learning_rate * a[i] * a[j]
+		}
+	}
+	return W_delta
+}
+
+function sum(x){
+	//sum all elements of 1d array
+	total = 0;
+	for(var i=0;i<x.length;i++){
+		total += x[i];
+	}
+	return total;
+}
+
+function propagate_forget(a, p, learning_rate, forgeting_rate, W){
+	// learning and forgetting 
+	N = a.length
+	W_delta = new Array(a.length).fill(0).map(()=>new Array(a.length).fill(0));
+	
+	sum_a = 0
+	for(var i=0;i<a.length;i++){
+		sum_a += a[i];
+	}
+	
+	
+	for(var i=0; i < a.length; i++){
+		for(var j=0; j < a.length; j++){
+			W_delta[i][j] = (learning_rate * a[i] * p[j] - forgeting_rate * sum_a/N * W[i][j]) / N
 		}
 	}
 	return W_delta
@@ -490,7 +518,9 @@ function propagate(a, learning_rate){
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 3
-	learning_rate = 0.001
+	// try with different values
+	learning_rate = 0.1
+	forgeting_rate = 0.3
 	
 	// proximity sensor
 	prox = [getSensorValById(robot,'distR'),
@@ -505,24 +535,30 @@ function robotMove(robot) {
 	prox = [prox[0] > maxSensVals[0] ? 70 : prox[0],
 		    prox[1] > maxSensVals[1] ? 70 : prox[1]];
 	
+	prox = [1.0/(prox[0] + 1.0), 1.0/(prox[1]+1.0)];
+	
 	if (simInfo.curSteps == 0) {
 		W = initWeights(0.05, 2,2)
 	} else {
-		x= 1+1;
-		//W += W_delta
+		W = add(W, W_delta)
 	}
 	
 	h = add(multiply(W, prox), c)
-	a = threshold(h, 5)
-	
+	a = threshold(h, 0.5)
+
 	// change of W = learning rate * activation * activations
-	W_delta = propagate(a, learning_rate) // may not work yet
+	//W_delta = propagate(a, learning_rate) // may not work yet
+	W_delta = propagate_forget(a, prox, learning_rate, forgeting_rate, W)
 	
 	network_info = "Hidden layer " + h[0] + " " + h[1] + " " + h.length + "\n" +
 				   "Activation " + a[0] + " " + a[1] + "\n" +
-					"W_delta" + W_delta[0][0] + " " + W_delta[0][1] + " " + W_delta[1][0] + " " + W_delta[1][1]
+					"W_delta " + W_delta[0][0] + " " + W_delta[0][1] + " " + W_delta[1][0] + " " + W_delta[1][1] + "\n" +
+					"W " + W[0][0] + " " + W[0][1] + " " + W[1][0] + " " + W[1][1] + "\n"
 	
 	console.log(network_info)
+	
+	robot.rotate(robot, -a[0] / 100.0)
+	robot.rotate(robot, a[1] / 100.0)
 	
 	
 	
