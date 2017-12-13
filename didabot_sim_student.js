@@ -518,9 +518,10 @@ function propagate_forget(a, p, learning_rate, forgeting_rate, W){
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 3
-	// try with different values
-	learning_rate = 0.1
-	forgeting_rate = 0.3
+	// Experiment with these values to change performance
+	learning_rate = 0.01 // {0.0, 0.001, 0.01}
+	forgeting_rate = 0.01
+	theta = 0.005
 	
 	// proximity sensor
 	prox = [getSensorValById(robot,'distR'),
@@ -544,7 +545,7 @@ function robotMove(robot) {
 	}
 	
 	h = add(multiply(W, prox), c)
-	a = threshold(h, 0.5)
+	a = threshold(h, theta)
 
 	// change of W = learning rate * activation * activations
 	//W_delta = propagate(a, learning_rate) // may not work yet
@@ -557,11 +558,10 @@ function robotMove(robot) {
 	
 	console.log(network_info)
 	
+	
+	// Maybe we want the robot to move differently ???
 	robot.rotate(robot, -a[0] / 100.0)
 	robot.rotate(robot, a[1] / 100.0)
-	
-	
-	
 	
 	// reflex - turn away from walls
 	robot.drive(robot, 0.0001);
