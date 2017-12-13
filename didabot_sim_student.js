@@ -24,6 +24,7 @@
 var N_ROBOTS = 1; // no more than 5
 var N_BOX = [4,4]; // number of boxes on x,y
 
+var LOOK_ANGLE = 0.5
 var SENSOR_ANGLE = Math.PI / 4; // sensor angle for all robots, symetric 
 var SENSOR_DIST  = 50			// Maximum distance of which the sensor gives valid measure
 
@@ -39,7 +40,7 @@ function robo_init(x, y, orientation, sensorAngle, color){
       minVal: 0,  // minimum detectable distance, in pixels
       maxVal: SENSOR_DIST,  // maximum detectable distance, in pixels
       attachAngle: sensorAngle,  // where the sensor is mounted on robot body
-      lookAngle: 0,  // direction the sensor is looking (relative to center-out)
+      lookAngle: -LOOK_ANGLE,  // direction the sensor is looking (relative to center-out)
       id: 'distR',  // a unique, arbitrary ID of the sensor, for printing/debugging
       parent: null,  // robot object the sensor is attached to, added by InstantiateRobot
       value: null  // sensor value, i.e. distance in pixels; updated by sense() function
@@ -49,7 +50,7 @@ function robo_init(x, y, orientation, sensorAngle, color){
       minVal: 0,  // minimum detectable distance, in pixels
       maxVal: SENSOR_DIST,  // maximum detectable distance, in pixels
       attachAngle: -sensorAngle,  // where the sensor is mounted on robot body
-      lookAngle: 0,  // direction the sensor is looking (relative to center-out)
+      lookAngle: LOOK_ANGLE,  // direction the sensor is looking (relative to center-out)
       id: 'distL',  // a unique, arbitrary ID of the sensor, for printing/debugging
       parent: null,  // robot object the sensor is attached to, added by InstantiateRobot
       value: null  // sensor value, i.e. distance in pixels; updated by sense() function
