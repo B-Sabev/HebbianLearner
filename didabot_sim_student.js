@@ -25,7 +25,7 @@ var N_ROBOTS = 1; // no more than 5
 var N_BOX = [4,4]; // number of boxes on x,y
 
 var LOOK_ANGLE = 0.5
-var SENSOR_ANGLE = Math.PI / 4; // sensor angle for all robots, symetric 
+var SENSOR_ANGLE = Math.PI / 4; // sensor angle for all robots, symetric
 var SENSOR_DIST  = 50			// Maximum distance of which the sensor gives valid measure
 
 
@@ -57,7 +57,7 @@ function robo_init(x, y, orientation, sensorAngle, color){
      }
 	]
   }
-}	
+}
 
 // Initialize up to 5 robots
 RobotInfo = [
@@ -90,7 +90,7 @@ simInfo = {
   bayScale: 3,  // scale within 2nd, inset canvas showing robot in it's "bay"
   doContinue: true,  // whether to continue simulation, set in HTML
   debugSensors: true,  // plot sensor rays and mark detected objects
-  debugMouse: false,  // allow dragging any object with the mouse
+  debugMouse: true,  // allow dragging any object with the mouse
   engine: null,  // MatterJS 2D physics engine
   world: null,  // world object (composite of all objects in MatterJS engine)
   runner: null,  // object for running MatterJS engine
@@ -108,7 +108,7 @@ function init() {  // called once when loading HTML file
         height = arena.height,
         width = arena.width;
   simInfo.height = height;
-  simInfo.width = width;	
+  simInfo.width = width;
 
   /* Create a MatterJS engine and world. */
   simInfo.engine = Matter.Engine.create();
@@ -432,12 +432,13 @@ function initWeights(init_val, i,j){
 
 function multiply(m,v){
 	// multiply vector by matrix if dimentions are right
+	//m = weights, v = inputvector
 	product = []
 	for(var i=0; i<m.length; i++){
 		//m[i] and v are 2 vectors - make dot product
 		row = 0
 		for(var j=0; j<m[i].length; j++){
-			row += m[i][j] * v[j]
+			row += m[i][j] * v[i]
 		}
 		product.push(row)
 	}
@@ -497,20 +498,21 @@ function sum(x){
 	return total;
 }
 
-function propagate_forget(a, p, learning_rate, forgeting_rate, W){
-	// learning and forgetting 
+
+function propagate_forget(a, p, learning_rate, forgetting_rate, W){
+	// learning and forgetting
 	N = a.length
 	W_delta = new Array(a.length).fill(0).map(()=>new Array(a.length).fill(0));
-	
+
 	sum_a = 0
 	for(var i=0;i<a.length;i++){
 		sum_a += a[i];
 	}
-	
-	
+
+
 	for(var i=0; i < a.length; i++){
 		for(var j=0; j < a.length; j++){
-			W_delta[i][j] = (learning_rate * a[i] * p[j] - forgeting_rate * sum_a/N * W[i][j]) / N
+			W_delta[i][j] = (learning_rate * a[i] * p[j] - forgetting_rate * (sum_a/N) * W[i][j]) / N
 		}
 	}
 	return W_delta
@@ -520,58 +522,67 @@ function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 3
 	// Experiment with these values to change performance
-	learning_rate = 0.01 // {0.0, 0.001, 0.01}
-	forgeting_rate = 0.01
+	learning_rate = 0.0 // {0.0, 0.001, 0.01}
+	forgetting_rate = 0.01
 	theta = 0.005
-	
+
 	// proximity sensor
 	prox = [getSensorValById(robot,'distR'),
 			getSensorValById(robot,'distL')];
 	// collision sensor
 	c	= [prox[0] > p_thresh ? 0 : 1,
 		   prox[1] > p_thresh ? 0 : 1];
-	
-	maxSensVals = [robot.sensors[0].maxVal, 
+
+	maxSensVals = [robot.sensors[0].maxVal,
 				   robot.sensors[1].maxVal];
-	
+
 	prox = [prox[0] > maxSensVals[0] ? 70 : prox[0],
 		    prox[1] > maxSensVals[1] ? 70 : prox[1]];
-	
+
 	prox = [1.0/(prox[0] + 1.0), 1.0/(prox[1]+1.0)];
-	
+
 	if (simInfo.curSteps == 0) {
-		W = initWeights(0.05, 2,2)
+		W = initWeights(0.01, 2,2)
 	} else {
 		W = add(W, W_delta)
 	}
-	
-	h = add(multiply(W, prox), c)
-	a = threshold(h, theta)
+	//s = initWeights(2,2,2)
+	//s[0][1]=1
+	 h = add(multiply(W, prox), c)
+	// r = new Array(2).fill(3)
+	// console.log(multiply(s,r))
 
+	a = threshold(h, theta)
+	console.log(a)
 	// change of W = learning rate * activation * activations
 	//W_delta = propagate(a, learning_rate) // may not work yet
-	W_delta = propagate_forget(a, prox, learning_rate, forgeting_rate, W)
-	
+	W_delta = propagate_forget(a, prox, learning_rate, forgetting_rate, W)
+
 	network_info = "Hidden layer " + h[0] + " " + h[1] + " " + h.length + "\n" +
 				   "Activation " + a[0] + " " + a[1] + "\n" +
 					"W_delta " + W_delta[0][0] + " " + W_delta[0][1] + " " + W_delta[1][0] + " " + W_delta[1][1] + "\n" +
 					"W " + W[0][0] + " " + W[0][1] + " " + W[1][0] + " " + W[1][1] + "\n"
-	
-	console.log(network_info)
-	
-	
+
+
+	//console.log(network_info);
+	//console.log("output: "+h[0]+" "+h[1]);
+
 	// Maybe we want the robot to move differently ???
-	robot.rotate(robot, -a[0] / 100.0)
-	robot.rotate(robot, a[1] / 100.0)
-	
-	// reflex - turn away from walls
+	if(a[0]==a[1])
 	robot.drive(robot, 0.0001);
-	if(c[0])
-		robot.rotate(robot, -0.01)
-	if(c[1])
-		robot.rotate(robot, 0.01)
-		
-	
+	else if(a[0]<a[1])
+		robot.rotate(robot, 1 / 500.0)
+	else
+		robot.rotate(robot, -1 / 500.0)
+
+	// reflex - turn away from walls
+	//robot.drive(robot, 0.0001);
+	//if(c[0])
+	//	robot.rotate(robot, -0.01)
+	//if(c[1])
+	//	robot.rotate(robot, 0.01)
+
+
 };
 
 function plotSensor(context, x = this.x, y = this.y) {
@@ -752,7 +763,7 @@ function repaintBay() {
   }
 
   // print sensor values of selected robot next to canvas
-  
+
   // For slower update of sensor values increase the 5
   if (!(simInfo.curSteps % 5)) {  // update slow enough to read
     var sensorString = '';
