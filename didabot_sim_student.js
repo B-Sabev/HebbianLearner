@@ -522,7 +522,7 @@ function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 3
 	// Experiment with these values to change performance
-	learning_rate = 0.0 // {0.0, 0.001, 0.01}
+	learning_rate = 0.01 // {0.0, 0.001, 0.01}
 	forgetting_rate = 0.01
 	theta = 0.005
 
