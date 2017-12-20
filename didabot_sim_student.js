@@ -523,11 +523,10 @@ function propagate_forget(a, p, learning_rate, forgetting_rate, W){
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 3
-	// Experiment with these values to change performance
-	learning_rate = 0.01 // {0.0, 0.001, 0.01}
-	forgetting_rate = 0.01
-	theta = 0.005
-
+	// try with different values
+	learning_rate = 0.1
+	forgeting_rate = 0.0001
+	
 	// proximity sensor
 	prox = [getSensorValById(robot,'distR'),
 			getSensorValById(robot,'distL')];
