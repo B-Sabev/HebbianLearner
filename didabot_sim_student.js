@@ -134,12 +134,14 @@ function init() {  // called once when loading HTML file
                                    {frictionAir: simInfo.airDrag,
                                     friction: simInfo.boxFric,
                                     mass: simInfo.boxMass,
-                                    role: 'box'});
+                                    role: 'box',
+                                    color: [255, 255, 255]
+                                    });
   };
 
   const startX = 100, startY = 100,
         nBoxX = N_BOX[0], nBoxY = N_BOX[1],
-        gapX = 40, gapY = 30,
+        gapX = 60, gapY = 60,
         stack = Matter.Composites.stack(startX, startY,
                                         nBoxX, nBoxY,
                                         gapX, gapY, getBox);
