@@ -26,7 +26,7 @@ var N_BOX = [4,4]; // number of boxes on x,y
 
 var LOOK_ANGLE = 0.8 // lookangle of the sensors, which way they are pointing
 var SENSOR_ANGLE = Math.PI / 3; // sensor angle for all robots, symetric
-var SENSOR_DIST  = 20			// Maximum distance of which the sensor gives valid measure
+var SENSOR_DIST  = 60			// Maximum distance of which the sensor gives valid measure
 
 
 // Initialize the robot position and sensors
@@ -81,8 +81,8 @@ simInfo = {
   airDrag: 0.1,  // "air" friction of enviroment; 0 is vacuum, 0.9 is molasses
   boxFric: 0.005, //
   boxMass: 0.01,  // mass of boxes
-  boxSize: 15,  // size of the boxes, in pixels
-  robotSize: 2*7,  // robot radius, in pixels
+  boxSize: 25,  // size of the boxes, in pixels
+  robotSize: 2*13,  // robot radius, in pixels
   robotMass: 0.4, // robot mass (a.u)
   gravity: 0,  // constant acceleration in Y-direction
   bayRobot: null,  // currently selected robot
@@ -522,7 +522,7 @@ function propagate_forget(a, p, learning_rate, forgetting_rate, W){
 
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
-	p_thresh = 3
+	p_thresh = 10
 	// Experiment with these values to change performance
 	learning_rate = 0.01 // {0.0, 0.001, 0.01}
 	forgetting_rate = 0.01
@@ -574,19 +574,15 @@ function robotMove(robot) {
 	if(a[0]==a[1])
 		robot.drive(robot, 0.0001);
 	else if(a[0]<a[1])
-		robot.rotate(robot, 1 / 500.0)
+		robot.rotate(robot, 1 / 20.0)
 	else
-		robot.rotate(robot, -1 / 500.0)
+		robot.rotate(robot, -1 / 20.0)
 
 	// reflex - turn away from walls
 	//robot.drive(robot, 0.0001);
-	if(c[0]){
-		robot.rotate(robot, -0.01)
+	if(c[0] && c[1]){
+		robot.rotate(robot, -1/15)
 		console.log("reflex")
-	}
-	if(c[1]) {
-		console.log("relfex")
-		robot.rotate(robot, 0.01)
 	}
 
 };
