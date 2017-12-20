@@ -542,7 +542,7 @@ function robotMove(robot) {
 	prox = [1.0/(prox[0] + 1.0), 1.0/(prox[1]+1.0)];
 
 	if (simInfo.curSteps == 0) {
-		W = initWeights(0.01, 2,2)
+		W = initWeights(0.001, 2,2)
 	} else {
 		W = add(W, W_delta)
 	}
@@ -569,7 +569,7 @@ function robotMove(robot) {
 
 	// Maybe we want the robot to move differently ???
 	if(a[0]==a[1])
-	robot.drive(robot, 0.0001);
+		robot.drive(robot, 0.0001);
 	else if(a[0]<a[1])
 		robot.rotate(robot, 1 / 500.0)
 	else
