@@ -579,15 +579,11 @@ function robotMove(robot) {
 		robot.rotate(robot, -1 / 500.0)
 
 	// reflex - turn away from walls
-	//robot.drive(robot, 0.0001);
-	if(c[0]){
-		robot.rotate(robot, -0.01)
-		console.log("reflex")
-	}
-	if(c[1]) {
-		console.log("relfex")
+	robot.drive(robot, 0.0001);
+	if(c[0])
+        robot.rotate(robot, -0.01)
+	if(c[1])
 		robot.rotate(robot, 0.01)
-	}
 
 };
 
