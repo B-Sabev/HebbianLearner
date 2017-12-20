@@ -120,7 +120,8 @@ function init() {  // called once when loading HTML file
   // note that "roles" are custom properties for rendering (not from MatterJS)
   function getWall(x, y, width, height) {
     return Matter.Bodies.rectangle(x, y, width, height,
-                                   {isStatic: true, role: 'wall'});
+                                   {friction: 0,
+																		isStatic: true, role: 'wall'});
   };
   const wall_lo = getWall(width/2, height-5, width-5, 5),
         wall_hi = getWall(width/2, 5, width-5, 5),
@@ -135,7 +136,12 @@ function init() {  // called once when loading HTML file
                                     friction: simInfo.boxFric,
                                     mass: simInfo.boxMass,
                                     role: 'box',
-                                    color: [255, 255, 255]
+                                    //color: '#5F9EA0' ,
+																		render: {
+																         fillStyle: '#5F9EA0',
+																         strokeStyle: '#5F9EA0',
+																         lineWidth: 3
+																    }
                                     });
   };
 
@@ -581,7 +587,7 @@ function robotMove(robot) {
 	// reflex - turn away from walls
 	//robot.drive(robot, 0.0001);
 	if(c[0] && c[1]){
-		robot.rotate(robot, -1/15)
+		robot.rotate(robot, -1/5)
 		console.log("reflex")
 	}
 
