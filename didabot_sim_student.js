@@ -562,9 +562,12 @@ function robotMove(robot) {
 	}
 	//s = initWeights(2,2,2)
 	//s[0][1]=1
-	 h = add(multiply(W, prox), c)
+
+	h = add(multiply(W, prox), c)
 	// r = new Array(2).fill(3)
 	// console.log(multiply(s,r))
+
+
 
 	a = threshold(h, theta)
 	//console.log(a)
@@ -606,6 +609,42 @@ function robotMove(robot) {
 
         
 };
+
+function rotateBySetRadians(robot,
+                            set_radians=Math.PI/2,
+                            abs_torque=0.01) {
+  /* Rotate the robot for the given amount in parameter set_radians;
+   * abs_torque is the absolute amount of torque to apply per sim step.
+   * Note that robotMove() is not executed until the rotation is done.
+   *
+   * Note how this is implemented by creating a closure to save the requested
+   * goal angle when rotateBySetRadians() is called in robotMove().
+   * The closure is temporarily inserted in robot.move (called each sim step).
+   */
+
+  abs_torque = Math.abs(abs_torque);  // never trust users :)
+
+  // compute values to define and monitor the rotation progress
+  const robot_angle = getSensorValById(robot, 'gyro'),  // current robot angle
+        goal_angle = robot_angle + set_radians,  // goal angle after rotation
+        error_angle = goal_angle - robot_angle,  // signed error angle
+        sgn_torque = Math.sign(error_angle);  // which direction to rotate
+
+  function rotateUntilDone() {
+    const error_angle = goal_angle - getSensorValById(robot, 'gyro');
+    // anything left to rotate, or did we already overshoot (if < 0)?
+    const error_remaining = error_angle * sgn_torque;
+
+    if (error_remaining > 0) {  // not done yet, rotate a bit further
+      robot.rotate(robot, sgn_torque*abs_torque);
+    }
+    else {  // done with rotation, call robotMove() again in next sim step
+      robot.move = robotMove;
+    }
+  };
+
+  return rotateUntilDone;
+}
 
 function plotSensor(context, x = this.x, y = this.y) {
   context.beginPath();
