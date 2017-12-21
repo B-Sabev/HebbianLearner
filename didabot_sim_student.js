@@ -29,6 +29,7 @@ var SENSOR_ANGLE = Math.PI / 3; // sensor angle for all robots, symetric
 var SENSOR_DIST  = 60			// Maximum distance of which the sensor gives valid measure
 
 
+
 // Initialize the robot position and sensors
 function robo_init(x, y, orientation, sensorAngle, color){
 	return {body: null,  // for MatterJS body, added by InstantiateRobot()
@@ -404,6 +405,10 @@ function InstantiateRobot(robotInfo) {
   this.drive = drive;
   this.info = robotInfo;
   this.plotRobot = plotRobot;
+    this.Arr1 = []
+    this.Arr2 = []
+    this.Arr3 = []
+    this.Arr4 = []
 
   // add functions getWidth/getHeight for graphics.js & mouse.js,
   // to enable selection by clicking the robot in the arena
@@ -526,12 +531,13 @@ function propagate_forget(a, p, learning_rate, forgetting_rate, W){
 	return W_delta
 }
 
+
 function robotMove(robot) {
 // This function is called each timestep and should be used to move the robots
 	p_thresh = 10
 	// Experiment with these values to change performance
-	learning_rate = 0.01 // {0.0, 0.001, 0.01}
-	forgetting_rate = 0.01
+	learning_rate = 0.0 // {0.0, 0.001, 0.01}
+	forgetting_rate = 0.0
 	theta = 0.005
 
 	// proximity sensor
@@ -561,17 +567,24 @@ function robotMove(robot) {
 	// console.log(multiply(s,r))
 
 	a = threshold(h, theta)
-	console.log(a)
+	//console.log(a)
 	// change of W = learning rate * activation * activations
 	//W_delta = propagate(a, learning_rate) // may not work yet
 	W_delta = propagate_forget(a, prox, learning_rate, forgetting_rate, W)
-
-	network_info = "Hidden layer " + h[0] + " " + h[1] + " " + h.length + "\n" +
-				   "Activation " + a[0] + " " + a[1] + "\n" +
-					"W_delta " + W_delta[0][0] + " " + W_delta[0][1] + " " + W_delta[1][0] + " " + W_delta[1][1] + "\n" +
+    if (!(simInfo.curSteps%100)){
+        robot.Arr1.push(W[0][0])
+        robot.Arr2.push(W[0][1])
+        robot.Arr3.push(W[1][0])
+        robot.Arr4.push(W[1][1])
+    }
+    
+    
+	network_info = //"Hidden layer " + h[0] + " " + h[1] + " " + h.length + "\n" +
+				   //"Activation " + a[0] + " " + a[1] + "\n" +
+					//"W_delta " + W_delta[0][0] + " " + W_delta[0][1] + " " + W_delta[1][0] + " " + W_delta[1][1] + "\n" +
 					"W " + W[0][0] + " " + W[0][1] + " " + W[1][0] + " " + W[1][1] + "\n"
 
-
+    
 	//console.log(network_info);
 	//console.log("output: "+h[0]+" "+h[1]);
 
@@ -588,9 +601,10 @@ function robotMove(robot) {
 	//robot.drive(robot, 0.0001);
 	if(c[0] && c[1]){
 		robot.rotate(robot, -1/5)
-		console.log("reflex")
+		//console.log("reflex")
 	}
 
+        
 };
 
 function plotSensor(context, x = this.x, y = this.y) {
@@ -721,6 +735,7 @@ function simStep() {
       padnumber(simInfo.maxSteps, 5);
   }
   else {
+    console.log("Arr1: " + robots[0].Arr1 + " Arr2: " + robots[0].Arr2 + " Arr3: " + robots[0].Arr3 + " Arr4: " + robots[0].Arr4)
     toggleSimulation();
   }
 }
